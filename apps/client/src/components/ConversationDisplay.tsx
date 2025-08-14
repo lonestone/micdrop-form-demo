@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
 import { useMicdropState } from '@micdrop/react'
-import { User, Bot } from 'lucide-react'
+import { Bot, User } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 
 export default function ConversationDisplay() {
   const { conversation } = useMicdropState()
@@ -29,7 +29,7 @@ export default function ConversationDisplay() {
           Conversation ({conversation.length} messages)
         </h3>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-[500px]">
         {conversation.map(({ role, content }, index) => (
           <div
@@ -39,27 +39,29 @@ export default function ConversationDisplay() {
             }`}
           >
             {/* Avatar */}
-            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-              role === 'user' 
-                ? 'bg-neon-blue/20 text-neon-blue' 
-                : 'bg-neon-purple/20 text-neon-purple'
-            }`}>
+            <div
+              className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                role === 'user'
+                  ? 'bg-neon-blue/20 text-neon-blue'
+                  : 'bg-neon-purple/20 text-neon-purple'
+              }`}
+            >
               {role === 'user' ? (
                 <User className="w-4 h-4" />
               ) : (
                 <Bot className="w-4 h-4" />
               )}
             </div>
-            
+
             {/* Message */}
-            <div className={`max-w-[80%] p-4 rounded-2xl border transition-all duration-300 hover:scale-[1.02] ${
-              role === 'user'
-                ? 'bg-neon-blue/10 border-neon-blue/30 text-neon-blue rounded-br-none'
-                : 'bg-neon-purple/10 border-neon-purple/30 text-neon-purple rounded-bl-none'
-            }`}>
-              <p className="text-sm leading-relaxed">
-                {content}
-              </p>
+            <div
+              className={`max-w-[80%] p-4 rounded-2xl border transition-all duration-300 hover:scale-[1.02] ${
+                role === 'user'
+                  ? 'bg-neon-blue/10 border-neon-blue/30 text-neon-blue rounded-br-none'
+                  : 'bg-neon-purple/10 border-neon-purple/30 text-neon-purple rounded-bl-none'
+              }`}
+            >
+              <p className="text-sm leading-relaxed">{content}</p>
             </div>
           </div>
         ))}

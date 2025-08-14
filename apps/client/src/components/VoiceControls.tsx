@@ -1,21 +1,38 @@
-import React from 'react'
-import { Play, Square, Pause, Mic, MicOff } from 'lucide-react'
-import { Micdrop } from '@micdrop/client'
-import { useMicdropState } from '@micdrop/react'
+import { Micdrop, Speaker } from '@micdrop/client'
+import { useMicdropEndCall, useMicdropState } from '@micdrop/react'
+import { Mic, MicOff, Pause, Play, Square } from 'lucide-react'
+import { FormSchema } from './FormBuilder'
 
 interface VoiceControlsProps {
   serverUrl: string
+  formSchema?: FormSchema
 }
 
-export default function VoiceControls({ serverUrl }: VoiceControlsProps) {
+export default function VoiceControls({
+  serverUrl,
+  formSchema,
+}: VoiceControlsProps) {
   const state = useMicdropState()
+
+  // Handle end of call
+  useMicdropEndCall(() => {
+    // Stop after last speech end
+    setTimeout(async () => {
+      if (Speaker.isPlaying) {
+        Speaker.on('StopPlaying', Micdrop.stop)
+      } else {
+        Micdrop.stop()
+      }
+    }, 5000)
+  })
 
   const startCall = async () => {
     try {
       await Micdrop.start({
         url: serverUrl,
         vad: ['volume', 'silero'],
-        debugLog: true
+        debugLog: true,
+        params: formSchema ? { formSchema } : undefined,
       })
     } catch (error) {
       console.error('Failed to start call:', error)
@@ -54,17 +71,17 @@ export default function VoiceControls({ serverUrl }: VoiceControlsProps) {
           <h2 className="text-2xl font-bold text-neon-blue neon-glow mb-4">
             Voice Assistant
           </h2>
-          <p className="text-lg text-gray-300 mb-6">
-            {getStatusMessage()}
-          </p>
-          
+          <p className="text-lg text-gray-300 mb-6">{getStatusMessage()}</p>
+
           {/* Connection Status Indicator */}
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              state.isStarted 
-                ? 'bg-green-400 animate-pulse-neon' 
-                : 'bg-gray-600'
-            }`} />
+            <div
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                state.isStarted
+                  ? 'bg-green-400 animate-pulse-neon'
+                  : 'bg-gray-600'
+              }`}
+            />
             <span className="text-sm text-gray-400">
               {state.isStarted ? 'Connected' : 'Disconnected'}
             </span>
@@ -81,7 +98,7 @@ export default function VoiceControls({ serverUrl }: VoiceControlsProps) {
             className="btn-primary flex items-center space-x-3 text-xl px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Play className="w-6 h-6" />
-            <span>{state.isStarting ? 'Starting...' : 'Start Call'}</span>
+            <span>{state.isStarting ? 'Starting...' : 'Start Assistant'}</span>
           </button>
         ) : (
           <>
@@ -118,9 +135,11 @@ export default function VoiceControls({ serverUrl }: VoiceControlsProps) {
       {/* Microphone Status */}
       {state.isStarted && (
         <div className="glass-panel p-4 flex items-center space-x-4">
-          <div className={`transition-colors duration-300 ${
-            state.isMicMuted ? 'text-red-400' : 'text-green-400'
-          }`}>
+          <div
+            className={`transition-colors duration-300 ${
+              state.isMicMuted ? 'text-red-400' : 'text-green-400'
+            }`}
+          >
             {state.isMicMuted ? (
               <MicOff className="w-6 h-6" />
             ) : (

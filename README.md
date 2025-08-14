@@ -1,64 +1,52 @@
-# Micdrop Monorepo
+# 🎙️ Micdrop Form Demo - AI Voice Form Assistant
 
-A voice AI assistant built with Micdrop, featuring a Fastify TypeScript server and a React client.
+**A demo app showcasing [Micdrop](https://micdrop.dev)'s capabilities for voice-assisted form filling using OpenAI and tool calling.**
 
-## 🚀 Features
+Transform how users fill forms with natural voice conversations! This demo app shows how to build an intelligent voice assistant that can collect structured information through conversational AI, automatically populating form fields using OpenAI's tool calling feature.
 
-- **Server**: Fastify TypeScript server with Micdrop integration
-- **Client**: Beautiful React app with futuristic neon UI
-- **Voice AI**: OpenAI, Gladia STT, and ElevenLabs TTS integration
-- **Real-time**: WebSocket-based voice conversations
-- **Monorepo**: Turborepo setup for efficient development
+## ✨ Demo Features
 
-## 🏗️ Project Structure
+- **🗣️ Voice-First Form Filling**: Users speak naturally to fill out forms instead of typing
+- **🛠️ Dynamic Form Builder**: Create and customize forms with drag & drop interface
+- **🤖 OpenAI Integration**: GPT-4 powered conversations with tool calling
+- **📝 Smart Data Collection**: AI extracts structured data from natural conversations
+- **⚡ Real-time Updates**: Form fields populate automatically as the AI collects information
+- **🎯 Intelligent Conversations**: AI asks relevant questions based on form structure
 
-```
-├── apps/
-│   ├── server/          # Fastify TypeScript server
-│   │   ├── src/
-│   │   │   └── server.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   └── client/          # React TypeScript client
-│       ├── src/
-│       │   ├── components/
-│       │   ├── App.tsx
-│       │   └── main.tsx
-│       ├── package.json
-│       └── vite.config.ts
-├── package.json         # Root package.json
-└── turbo.json          # Turborepo configuration
-```
+## 🎯 What This Demonstrates
 
-## 🛠️ Setup
+This app showcases Micdrop's powerful capabilities for building voice-enabled applications:
+
+1. **Form Schema Integration**: Dynamic system prompt generation based on form configuration
+2. **Tool Calling**: OpenAI agent uses tools to populate form fields in real-time
+3. **Natural Conversations**: AI conducts human-like conversations to collect information
+4. **Structured Data Extraction**: Converting conversational input into structured form data
+5. **Real-time Synchronization**: Bidirectional updates between voice conversation and form UI
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
 - npm or yarn
 - API keys for:
-  - OpenAI
-  - ElevenLabs
-  - Gladia
+  - [OpenAI](https://platform.openai.com/) (for conversational AI + tool calling)
+  - [ElevenLabs](https://elevenlabs.io/) (for text-to-speech)
+  - [Gladia](https://www.gladia.io/) (for speech-to-text)
 
 ### Installation
 
-1. **Install dependencies**:
+1. **Clone and install**:
 
    ```bash
+   git clone https://github.com/lonestone/micdrop-form-demo.git
+   cd micdrop-form-demo
    npm install
-   cd apps/server && npm install
-   cd ../client && npm install
-   cd ../..
    ```
 
 2. **Setup environment variables**:
 
-   ```bash
-   cp apps/server/.env.example apps/server/.env
-   ```
-
-   Edit `apps/server/.env` with your API keys:
+   Create `apps/server/.env` with your API keys:
 
    ```env
    OPENAI_API_KEY=your_openai_api_key_here
@@ -69,137 +57,168 @@ A voice AI assistant built with Micdrop, featuring a Fastify TypeScript server a
    HOST=0.0.0.0
    ```
 
-## 🚀 Running the Application
+3. **Start the demo**:
 
-### Development Mode
+   ```bash
+   npm run dev
+   ```
 
-Start both server and client in development mode:
+   The app will be available at `http://localhost:3000`
 
-```bash
-npm run dev
+## 🪄 This Demo App was Vibe-Coded
+
+I used this prompt to vibe-code this project, and a few manual tweaks.
+
+```
+Create a turbo monorepo in current folder with a client and a server in a new /apps folder:
+- server: a simple fastify server with Typescript that implements a micdrop server (use context7)
+- client: a simple React webapp with micdrop client.
+
+I want the React app to display a form with AI voice assistance instead of a classic discussion.
+Show form builder, play/stop/pause buttons and conversation.
+Make it beautiful and futuristic. White and yellow on dark background.
+Make the form editable (name/type/delete/order inputs).
+Default form inputs are: First name (required), Last name (required), Birthday date, City, Zip code, Message.
+Once the call is started, the form is not editable anymore.
+The form schema is sent as a call param when starting.
+The server validates and uses the form schema and inject it in the systemPrompt.
+The agent asks relevant questions to get all the info to fill the form.
+Add agent tool with emitOutput:true to get the outputs.
+When a ToolCall is received client side, update the form value.
+Use context7 for micdrop client, server and OpenaiAgent doc.
 ```
 
-This will start:
+Note: I used [Context7 MCP Server](https://context7.com), see [installation instructions](https://github.com/upstash/context7).
 
-- Server on `http://localhost:8081`
-- Client on `http://localhost:3000`
-- WebSocket endpoint: `ws://localhost:8081/call`
+## 🎮 How to Use the Demo
 
-### Individual Services
+1. **Open the app** at `http://localhost:3000`
 
-**Server only**:
+2. **Design your form**:
 
-```bash
-cd apps/server
-npm run dev
+   - Use the Form Builder on the left to create/edit form fields
+   - Default form includes: First Name, Last Name, Birthday, City, Zip Code, Message
+   - Drag & drop to reorder fields
+   - Set fields as required or optional
+   - Add new fields with different input types
+
+3. **Start the voice assistant**:
+
+   - Click "Start Assistant" when your form is ready
+   - The form becomes read-only during the conversation
+   - The AI receives your form schema and creates a personalized conversation plan
+
+4. **Have a natural conversation**:
+
+   - Speak naturally about your information
+   - The AI will ask follow-up questions based on your form structure
+   - Watch as form fields populate automatically in real-time
+   - The AI uses OpenAI's tool calling to update form data as you speak
+
+5. **Review collected data**:
+   - See your responses appear in the form fields instantly
+   - The conversation history is displayed on the right
+   - Once the AI has collected all required information, it will end the conversation
+
+### 🎯 Example Conversation Flow
+
+```
+AI: "Hello! I'm here to help you fill out a form. Let's start with your basic information. What's your first name?"
+
+User: "Hi, my name is John Smith and I live in New York"
+
+AI: "Great! I've got John as your first name and Smith as your last name. I also noted that you live in New York - is that the city you'd like me to record?"
+
+User: "Yes, and my zip code is 10001"
+
+AI: "Perfect! I've recorded New York as your city and 10001 as your zip code. Do you have a birthday you'd like to share?"
 ```
 
-**Client only**:
+_As this conversation happens, you'll see the form fields automatically populate with "John", "Smith", "New York", and "10001"._
 
-```bash
-cd apps/client
-npm run dev
+## 🔧 Technical Implementation
+
+This demo showcases several advanced Micdrop features:
+
+### Form Schema Integration
+
+- Dynamic system prompt generation based on form configuration
+- Client sends form schema via WebSocket parameters
+- Server validates schema using Zod validation
+
+### OpenAI Tool Calling
+
+```typescript
+agent.addTool({
+  name: 'updateFormField',
+  description: 'Update a form field with user-provided information',
+  parameters: z.object({
+    fieldName: z.string().describe('The name of the field to update'),
+    value: z.string().describe('The value provided by the user'),
+  }),
+  emitOutput: true,
+  callback: () => ({}), // Tool results sent to client
+})
 ```
 
-### Production Build
+### Real-time Client Updates
 
-```bash
-npm run build
+```typescript
+// Listen for tool calls and update form fields
+Micdrop.on('ToolCall', (event) => {
+  if (event.name === 'updateFormField') {
+    const { fieldName, value } = event.parameters
+    // Update form field in real-time
+    updateFormField(fieldName, value)
+  }
+})
 ```
 
-## 🎮 Usage
+### Intelligent Conversation Flow
 
-1. **Start the applications** using `npm run dev`
-2. **Open your browser** to `http://localhost:3000`
-3. **Configure server URL** (default: `ws://localhost:8081/call`)
-4. **Click "Start Call"** to begin voice conversation
-5. **Use controls**:
-   - **Play**: Start voice conversation
-   - **Pause**: Pause the conversation
-   - **Stop**: End the conversation
-6. **Speak naturally** - the AI will respond with voice and text
+- AI prioritizes required fields over optional ones
+- Extracts multiple pieces of information from single responses
+- Provides natural conversation experience
+- Automatically ends conversation when all required data is collected
 
-## 🎨 UI Features
+## 🛠️ Built With
 
-- **Futuristic neon design** with animated backgrounds
-- **Real-time status indicators** showing connection and voice activity
-- **Conversation display** with user and assistant messages
-- **Volume indicator** showing microphone input levels
-- **Error handling** with user-friendly messages
-- **Responsive design** that works on desktop and mobile
+**Micdrop Stack**:
 
-## 🔧 Configuration
+- [@micdrop/server](https://micdrop.dev/docs/server) - Voice AI server framework
+- [@micdrop/client](https://micdrop.dev/docs/client) - Browser voice AI client
+- [@micdrop/react](https://micdrop.dev/docs/client/installation) - React hooks for Micdrop
+- [@micdrop/openai](https://micdrop.dev/docs/ai-integration/provided-integrations/openai) - OpenAI integration with tool calling
+- [@micdrop/gladia](https://micdrop.dev/docs/ai-integration/provided-integrations/gladia) - Gladia Speech-to-Text
+- [@micdrop/elevenlabs](https://micdrop.dev/docs/ai-integration/provided-integrations/elevenlabs) - ElevenLabs Text-to-Speech
 
-### Server Configuration
+**Additional Technologies**:
 
-The server can be configured via environment variables:
+- **Server**: Fastify, TypeScript, Zod validation
+- **Client**: React 18, TypeScript, Vite, Tailwind CSS
+- **AI Services**: OpenAI GPT-4, ElevenLabs TTS, Gladia STT
 
-- `PORT`: Server port (default: 8081)
-- `HOST`: Server host (default: 0.0.0.0)
-- `OPENAI_API_KEY`: OpenAI API key
-- `ELEVENLABS_API_KEY`: ElevenLabs API key
-- `ELEVENLABS_VOICE_ID`: ElevenLabs voice ID
-- `GLADIA_API_KEY`: Gladia API key
+## 💡 Use Cases
 
-### Client Configuration
+This demo pattern can be adapted for many voice-enabled form applications:
 
-The client server URL can be configured in the settings panel within the app.
+- **🏥 Healthcare**: Patient intake forms with voice assistance
+- **🏦 Finance**: Loan applications with conversational data collection
+- **🏢 Enterprise**: Employee onboarding and HR forms
+- **🏪 E-commerce**: Voice-powered checkout and customer information
+- **📋 Surveys**: Interactive voice surveys with dynamic questioning
+- **🎓 Education**: Voice-enabled student registration and assessments
 
-## 🛠️ Development
+## 📖 Learn More
 
-### Available Scripts
-
-- `npm run dev` - Start development servers
-- `npm run build` - Build for production
-- `npm run type-check` - Run TypeScript type checking
-- `npm run clean` - Clean build artifacts
-
-### Tech Stack
-
-**Server**:
-
-- Fastify - Fast web framework
-- TypeScript - Type safety
-- Micdrop Server - Voice AI framework
-- OpenAI - LLM agent
-- Gladia - Speech-to-text
-- ElevenLabs - Text-to-speech
-
-**Client**:
-
-- React 18 - UI framework
-- TypeScript - Type safety
-- Vite - Build tool
-- Tailwind CSS - Styling
-- Micdrop Client - Voice AI client
-- Lucide React - Icons
-
-## 📝 API Endpoints
-
-### Server Endpoints
-
-- `GET /health` - Health check endpoint
-- `GET /call` - WebSocket endpoint for voice conversations (upgrade to WebSocket)
-
-### WebSocket Events
-
-The Micdrop protocol handles all voice communication automatically, including:
-
-- Audio streaming
-- Voice activity detection
-- Real-time transcription
-- AI response generation
-- Text-to-speech conversion
-
-## 🎯 Next Steps
-
-- Add user authentication
-- Implement conversation history persistence
-- Add voice settings (speed, tone, etc.)
-- Support multiple AI models
-- Add mobile app support
-- Implement conversation analytics
+- [Micdrop Documentation](https://micdrop.dev/docs)
+- [OpenAI Tool Calling Guide](https://platform.openai.com/docs/guides/function-calling)
+- [WebSocket Protocol Details](https://micdrop.dev/docs/server/protocol)
 
 ## 📄 License
 
 MIT License - see LICENSE file for details.
+
+---
+
+**Ready to build your own voice-enabled forms?** [Explore Micdrop](https://micdrop.dev) and start creating conversational AI applications!

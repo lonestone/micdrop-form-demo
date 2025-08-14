@@ -1,9 +1,15 @@
 import { ElevenLabsTTS } from '@micdrop/elevenlabs'
 import { GladiaSTT } from '@micdrop/gladia'
 import { OpenaiAgent } from '@micdrop/openai'
-import { MicdropServer } from '@micdrop/server'
+import {
+  handleError,
+  Logger,
+  MicdropServer,
+  waitForParams,
+} from '@micdrop/server'
 import { config } from 'dotenv'
 import Fastify from 'fastify'
+import { z } from 'zod'
 
 // Load environment variables
 config()
@@ -37,45 +43,123 @@ fastify.get('/health', async (request, reply) => {
   return { status: 'ok', timestamp: new Date().toISOString() }
 })
 
+// Define form field schema
+const formFieldSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.enum(['text', 'email', 'tel', 'date', 'textarea']),
+  label: z.string(),
+  required: z.boolean(),
+  placeholder: z.string().optional(),
+  value: z.string().optional(),
+  order: z.number(),
+})
+
+const formSchema = z.object({
+  fields: z.array(formFieldSchema),
+})
+
+const paramsSchema = z.object({
+  formSchema: formSchema.optional(),
+})
+
 // WebSocket route for voice calls
 fastify.register(async function (fastify) {
-  fastify.get('/call', { websocket: true }, (socket) => {
+  fastify.get('/call', { websocket: true }, async (socket) => {
     console.log('🎤 New voice connection established')
 
-    // Setup AI components
-    const agent = new OpenaiAgent({
-      apiKey: process.env.OPENAI_API_KEY || '',
-      systemPrompt:
-        'You are a helpful and friendly voice assistant. Keep responses concise and conversational. Be enthusiastic and engaging.',
-      model: 'gpt-4o-mini',
-    })
+    try {
+      // Wait for parameters from client
+      const params = await waitForParams(socket, paramsSchema.parse)
 
-    const stt = new GladiaSTT({
-      apiKey: process.env.GLADIA_API_KEY || '',
-    })
+      // Build dynamic system prompt based on form schema
+      let systemPrompt =
+        'You are a helpful voice assistant designed to collect information from users through conversation.'
 
-    const tts = new ElevenLabsTTS({
-      apiKey: process.env.ELEVENLABS_API_KEY || '',
-      voiceId: process.env.ELEVENLABS_VOICE_ID || '',
-      modelId: 'eleven_turbo_v2_5',
-    })
+      if (params.formSchema && params.formSchema.fields.length > 0) {
+        const fieldDescriptions = params.formSchema.fields
+          .sort((a, b) => a.order - b.order)
+          .map((field) => {
+            const required = field.required ? ' (REQUIRED)' : ' (optional)'
+            return `- ${field.label}${required}: ${field.type} field, name: "${field.name}"`
+          })
+          .join('\n')
 
-    // Handle voice conversation
-    new MicdropServer(socket, {
-      firstMessage:
-        "Hello! I'm your AI voice assistant. How can I help you today?",
-      agent,
-      stt,
-      tts,
-    })
+        systemPrompt = `You are a helpful voice assistant designed to collect information from users through conversation.
 
-    socket.on('close', () => {
-      console.log('🔌 Voice connection closed')
-    })
+Your goal is to gather the following information through natural conversation:
 
-    socket.on('error', (error) => {
-      console.error('❌ WebSocket error:', error)
-    })
+${fieldDescriptions}
+
+Instructions:
+1. Be friendly, conversational, and natural
+2. Ask for information in a logical order (required fields first, then optional)
+3. Don't ask for all fields at once - gather them progressively through conversation
+4. When you successfully collect a piece of information, use the updateFormField tool to save it
+5. If a user provides information for multiple fields at once, extract and save each piece separately
+6. Keep responses concise and engaging
+7. After collecting all required fields, end the conversation, say thank you and goodbye. Don't ask for anything else.
+
+Start by greeting the user and beginning to collect the required information naturally.`
+      }
+
+      // Setup AI components
+      const agent = new OpenaiAgent({
+        apiKey: process.env.OPENAI_API_KEY || '',
+        systemPrompt,
+        model: 'gpt-4o',
+        autoEndCall: true,
+      })
+
+      // Add form field update tool
+      if (params.formSchema && params.formSchema.fields.length > 0) {
+        agent.addTool({
+          name: 'updateFormField',
+          description: 'Update a form field with user-provided information',
+          parameters: z.object({
+            fieldName: z.string().describe('The name of the field to update'),
+            value: z.string().describe('The value provided by the user'),
+          }),
+          emitOutput: true,
+          callback: () => ({}),
+        })
+      }
+
+      const stt = new GladiaSTT({
+        apiKey: process.env.GLADIA_API_KEY || '',
+      })
+
+      const tts = new ElevenLabsTTS({
+        apiKey: process.env.ELEVENLABS_API_KEY || '',
+        voiceId: process.env.ELEVENLABS_VOICE_ID || '',
+        modelId: 'eleven_turbo_v2_5',
+      })
+
+      // Handle voice conversation
+      const server = new MicdropServer(socket, {
+        generateFirstMessage: true,
+        agent,
+        stt,
+        tts,
+      })
+
+      // Enable debug logs
+      server.logger = new Logger('MicdropServer')
+      agent.logger = new Logger('OpenaiAgent')
+      stt.logger = new Logger('GladiaSTT')
+      tts.logger = new Logger('ElevenLabsTTS')
+
+      socket.on('close', () => {
+        console.log('🔌 Voice connection closed')
+      })
+
+      socket.on('error', (error) => {
+        console.error('❌ WebSocket error:', error)
+      })
+    } catch (error) {
+      console.error('❌ Error setting up voice connection:', error)
+      handleError(socket, error)
+    }
   })
 })
 
