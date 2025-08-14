@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-color: theme('colors.dark-border');
+  }
+  
+  body {
+    @apply bg-dark-bg text-white font-mono;
+  }
+}
+
+@layer components {
+  .btn-neon {
+    @apply relative overflow-hidden rounded-lg border-2 bg-transparent px-6 py-3 font-bold transition-all duration-300;
+    @apply hover:scale-105 active:scale-95;
+  }
+  
+  .btn-neon::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r opacity-20 transition-opacity duration-300;
+  }
+  
+  .btn-neon:hover::before {
+    @apply opacity-30;
+  }
+  
+  .btn-primary {
+    @apply btn-neon border-neon-blue text-neon-blue;
+  }
+  
+  .btn-primary::before {
+    @apply from-neon-blue to-neon-purple;
+  }
+  
+  .btn-danger {
+    @apply btn-neon border-neon-pink text-neon-pink;
+  }
+  
+  .btn-danger::before {
+    @apply from-neon-pink to-red-500;
+  }
+  
+  .btn-secondary {
+    @apply btn-neon border-neon-purple text-neon-purple;
+  }
+  
+  .btn-secondary::before {
+    @apply from-neon-purple to-neon-blue;
+  }
+  
+  .glass-panel {
+    @apply rounded-2xl border border-dark-border bg-dark-surface/50 backdrop-blur-xl;
+  }
+  
+  .neon-glow {
+    @apply animate-glow;
+  }
+}
