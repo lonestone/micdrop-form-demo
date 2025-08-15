@@ -116,12 +116,12 @@ Start by greeting the user and beginning to collect the required information nat
         agent.addTool({
           name: 'updateFormField',
           description: 'Update a form field with user-provided information',
-          parameters: z.object({
+          inputSchema: z.object({
             fieldName: z.string().describe('The name of the field to update'),
             value: z.string().describe('The value provided by the user'),
           }),
           emitOutput: true,
-          callback: () => ({}),
+          execute: () => ({}),
         })
       }
 

@@ -10,7 +10,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@micdrop/client": "^2.0.5",
+    "@micdrop/client": "^2.0.6",
     "@micdrop/react": "^1.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
